@@ -9,7 +9,51 @@ class Matrix
   end
 end
 
-def jacobi(a, eps)
+def proj(v1, v2)
+  v1.inner_product(v2) / v2.inner_product(v2)
+end
+
+def qr(v)
+  u = [v.row(0)]
+  e = [u[0] / u[0].norm]
+  (1..v.row_size-1).each do |i|
+    projAcc = Vector.elements(Array.new(v.row(0).size, 0))
+    (0..i-1).each do |j|
+      projAcc += proj(v.row(i), e[j])*e[j]
+    end
+    u.push(v.row(i) - projAcc)
+    e.push(u[i] / u[i].norm)
+  end
+  r = Matrix.build v.row_size do |i, j|
+    i >= j ? e[j].inner_product(v.row(i)) : 0
+  end
+  r = r.transpose
+  q = Matrix.rows(e.collect {|vec| vec.to_a}).transpose
+  return q, r
+end
+
+def qr_method(a, eps)
+  error = 2*eps
+
+  unless a.regular?
+    puts "Матрица вырожденная, ответ может быть неправильным" unless $silent
+  end
+  while error >= eps do
+    q, r = qr(a)
+    a = r*q
+    error = 0
+    a.each_with_index :strict_lower do |el, i, j|
+      error = el.abs if error < el.abs
+      a[i, j] = 0 if el < eps
+    end
+  end
+
+  ans = []
+  a.each(:diagonal) { |el| ans.push(el)}
+  ans
+end
+
+def jacobi_method(a, eps)
   t = Matrix.identity(a.row_size)
 
   until a.diagonal? do
@@ -43,12 +87,10 @@ def jacobi(a, eps)
     a = tij.transpose * a * tij
     a[i, j] = a[j, i] = 0
     t = t * tij
-
   end
+
   return a.row_size.times.collect { |i| a[i, i] }, t.column_vectors
 end
-
-$silent = true if ARGV.include?('silent')
 
 def init_sample
   a = Matrix[[4, 2, 1],
@@ -65,20 +107,33 @@ def init_sample
 end
 
 def init_interactive
-  delimiter = ' '
   print "Введите размер квадратной матрицы: " unless $silent
   n = STDIN.gets.to_i
   vectors = []
   n.times do
     print "Введите строку матрицы: " unless $silent
     vector = STDIN.gets
-    vector.sub!(' ', '') if delimiter != ' '
-    vector = vector.split(delimiter).collect {|val| val.to_f }
+    vector.sub!(' ', '') if $delimiter != ' '
+    vector = vector.split($delimiter).collect {|val| val.to_f }
     vectors.push(vector)
   end
   print "Введите допустимую погрешность: " unless $silent
   eps = STDIN.gets.to_f
   return Matrix.rows(vectors), eps
+end
+
+$delimiter = ' '
+$method = 'jacobi'
+
+ARGV.each do |arg|
+  case arg
+  when 'silent'
+    $silent = true
+  when /^delimiter=(.)$/
+    $delimiter = $1
+  when /^method=(.+)$/
+    $method = $1
+  end
 end
 
 if ARGV.include?('sample')
@@ -90,9 +145,14 @@ else
   a, eps = init_interactive
 end
 
-ans, t_ans = jacobi(a, eps)
-
-puts "Собственные значения:" unless $silent
-puts ans
-puts "Собственные векторы:" unless $silent
-puts t_ans
+if $method == 'jacobi'
+  ans, t_ans = jacobi_method(a, eps)
+  puts "Собственные значения:" unless $silent
+  puts ans
+  puts "Собственные векторы:" unless $silent
+  puts t_ans
+elsif $method == 'qr'
+  ans = qr_method(a, eps)
+  puts "Собственные значения:" unless $silent
+  puts ans
+end
