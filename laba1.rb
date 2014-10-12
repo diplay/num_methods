@@ -34,9 +34,11 @@ end
 
 def qr_method(a, eps)
   error = 2*eps
+  regular = true
 
   unless a.regular?
     puts "Матрица вырожденная, ответ может быть неправильным" unless $silent
+    regular = false
   end
   while error >= eps do
     q, r = qr(a)
@@ -50,7 +52,7 @@ def qr_method(a, eps)
 
   ans = []
   a.each(:diagonal) { |el| ans.push(el)}
-  ans
+  return ans, regular
 end
 
 def jacobi_method(a, eps)
@@ -124,35 +126,69 @@ end
 
 $delimiter = ' '
 $method = 'jacobi'
+$input = 'default'
+$output = 'plain'
 
 ARGV.each do |arg|
   case arg
+  when /^input=(.+)$/
+    $input = $1
   when 'silent'
     $silent = true
   when /^delimiter=(.)$/
     $delimiter = $1
   when /^method=(.+)$/
     $method = $1
+  when /^output=(.+)$/
+    $output = $1
+    $silent = true if $output != 'plain'
   end
 end
 
-if ARGV.include?('sample')
+case $input
+when 'sample'
   a, eps = init_sample
-elsif ARGV.include?('stdin')
+when 'plain'
   a, eps = init_interactive
 else
-  STDERR.puts "Не выбран режим, по умолчанию используется stdin" unless $silent
+  STDERR.puts "Не выбран режим, по умолчанию используется plain" unless $silent
   a, eps = init_interactive
 end
 
 if $method == 'jacobi'
   ans, t_ans = jacobi_method(a, eps)
-  puts "Собственные значения:" unless $silent
-  puts ans
-  puts "Собственные векторы:" unless $silent
-  puts t_ans
+  case $output
+  when 'plain'
+    puts "Собственные значения:" unless $silent
+    puts ans
+    puts "Собственные векторы:" unless $silent
+    t_ans.each {|vec| puts vec.to_a.join($delimiter) }
+  when 'json'
+    $ans_json = "{ eigenvalues : [#{ans.join(',')}], eigenvectors : [#{t_ans.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }] }"
+    print $ans_json
+  end
 elsif $method == 'qr'
-  ans = qr_method(a, eps)
-  puts "Собственные значения:" unless $silent
-  puts ans
+  ans, regular = qr_method(a, eps)
+  case $output
+  when 'plain'
+    puts "Собственные значения:" unless $silent
+    puts ans
+  when 'json'
+    $ans_json = "{ eigenvalues : [#{ans.join(',')}], matrix_regular : #{regular} }"
+    print $ans_json
+  end
+elsif $method == 'test'
+  v, d, t_ans = a.eigensystem
+  t_ans = t_ans.row_vectors
+  ans = d.row_size.times.collect { |i| d[i, i] }
+  case $output
+  when 'plain'
+    puts "Собственные значения:" unless $silent
+    puts ans
+    puts "Собственные векторы:" unless $silent
+    t._ans.each {|vec| puts vec.to_a.join($delimiter) }
+  when 'json'
+    $ans_json = "{ eigenvalues : [#{ans.join(',')}], eigenvectors : [#{t_ans.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }] }"
+    print $ans_json
+  end
 end
