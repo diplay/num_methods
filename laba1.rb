@@ -105,29 +105,52 @@ def init_sample
   p a.row(1).to_a
   p a.row(2).to_a
   puts "eps = #{eps}" unless $silent
-  return a, eps
+  return a
+end
+
+def enter_row
+  print "Введите строку матрицы: " unless $silent
+  vector = STDIN.gets
+  vector.sub!(' ', '') if $delimiter != ' '
+  vector = vector.split($delimiter).collect {|val| val.to_f }
 end
 
 def init_interactive
-  print "Введите размер квадратной матрицы: " unless $silent
-  n = STDIN.gets.to_i
   vectors = []
-  n.times do
-    print "Введите строку матрицы: " unless $silent
-    vector = STDIN.gets
-    vector.sub!(' ', '') if $delimiter != ' '
-    vector = vector.split($delimiter).collect {|val| val.to_f }
-    vectors.push(vector)
-  end
-  print "Введите допустимую погрешность: " unless $silent
-  eps = STDIN.gets.to_f
-  return Matrix.rows(vectors), eps
+  vectors.push(enter_row)
+  (vectors[0].size - 1).times { vectors.push(enter_row) }
+  puts "Допустимая погрешность: #{$eps}" unless $silent
+  return Matrix.rows(vectors)
+end
+
+def print_help
+  help = "Параметры:
+  input=sample|csv
+    Задает способ ввода данных, sample - прогоняется образец, не требует ввода
+                                csv - вводится матрица построчно, элементы разделяются разделителем
+  output=csv|json
+    Задает формат выходных данных
+  method=jacobi|qr|test
+    Задает используемый метод решения задачи, test использует алгоритм из стандартной библиотеки
+  silent
+    Отключает лишний вывод, остается только ответ задачи
+  eps=число
+    Задает погрешность, по умолчанию 1e-8
+  delimiter=символ
+    Задает разделитель для csv, по умолчанию прибел"
+  puts help
+end
+
+if ARGV.include?('help')
+  print_help
+  exit 0
 end
 
 $delimiter = ' '
 $method = 'jacobi'
 $input = 'default'
-$output = 'plain'
+$output = 'csv'
+$eps = 1e-8
 
 ARGV.each do |arg|
   case arg
@@ -141,40 +164,41 @@ ARGV.each do |arg|
     $method = $1
   when /^output=(.+)$/
     $output = $1
-    $silent = true if $output != 'plain'
+    $silent = true if $output != 'csv'
+  when /^eps=([\d\.e\-]+)$/
+    $eps = $1.to_f
   end
 end
 
 case $input
 when 'sample'
-  a, eps = init_sample
-when 'plain'
-  a, eps = init_interactive
+  a = init_sample
+when 'csv'
+  a = init_interactive
 else
-  STDERR.puts "Не выбран режим, по умолчанию используется plain" unless $silent
-  a, eps = init_interactive
+  a = init_interactive
 end
 
 if $method == 'jacobi'
-  ans, t_ans = jacobi_method(a, eps)
+  ans, t_ans = jacobi_method(a, $eps)
   case $output
-  when 'plain'
+  when 'csv'
     puts "Собственные значения:" unless $silent
-    puts ans
+    puts ans.join($delimiter)
     puts "Собственные векторы:" unless $silent
     t_ans.each {|vec| puts vec.to_a.join($delimiter) }
   when 'json'
-    $ans_json = "{ eigenvalues : [#{ans.join(',')}], eigenvectors : [#{t_ans.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }] }"
+    $ans_json = "{matrix: [#{a.row_vectors.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }], eigenvalues : [#{ans.join(',')}], eigenvectors : [#{t_ans.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }] }"
     print $ans_json
   end
 elsif $method == 'qr'
-  ans, regular = qr_method(a, eps)
+  ans, regular = qr_method(a, $eps)
   case $output
-  when 'plain'
+  when 'csv'
     puts "Собственные значения:" unless $silent
     puts ans
   when 'json'
-    $ans_json = "{ eigenvalues : [#{ans.join(',')}], matrix_regular : #{regular} }"
+    $ans_json = "{matrix: [#{a.row_vectors.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }], eigenvalues : [#{ans.join(',')}], matrix_regular : #{regular} }"
     print $ans_json
   end
 elsif $method == 'test'
@@ -182,13 +206,15 @@ elsif $method == 'test'
   t_ans = t_ans.row_vectors
   ans = d.row_size.times.collect { |i| d[i, i] }
   case $output
-  when 'plain'
+  when 'csv'
     puts "Собственные значения:" unless $silent
-    puts ans
+    puts ans.join($delimiter)
     puts "Собственные векторы:" unless $silent
-    t._ans.each {|vec| puts vec.to_a.join($delimiter) }
+    t_ans.each {|vec| puts vec.to_a.join($delimiter) }
   when 'json'
-    $ans_json = "{ eigenvalues : [#{ans.join(',')}], eigenvectors : [#{t_ans.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }] }"
+    $ans_json = "{matrix: [#{a.row_vectors.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }], eigenvalues : [#{ans.join(',')}], eigenvectors : [#{t_ans.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }] }"
     print $ans_json
   end
+else
+  STDERR.puts "Параметр method указан неверно, используйте help"
 end
