@@ -41,6 +41,7 @@ def qr_method(a, eps)
     regular = false
   end
   while error >= eps do
+    #STDERR.puts " #{a.to_a}" if $debug
     q, r = qr(a)
     a = r*q
     error = 0
@@ -98,13 +99,11 @@ def init_sample
   a = Matrix[[4, 2, 1],
              [2, 5, 3],
              [1, 3, 6]]
-  eps = 1e-8
 
   puts "Матрица:" unless $silent
   p a.row(0).to_a
   p a.row(1).to_a
   p a.row(2).to_a
-  puts "eps = #{eps}" unless $silent
   return a
 end
 
@@ -158,6 +157,8 @@ ARGV.each do |arg|
     $input = $1
   when 'silent'
     $silent = true
+  when 'debug'
+    $debug = true
   when /^delimiter=(.)$/
     $delimiter = $1
   when /^method=(.+)$/
