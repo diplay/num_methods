@@ -71,7 +71,7 @@ def jacobi_method(a, eps)
     end
     sigma /= 2
     break if Math::sqrt(sigma) < eps
-    tij = Matrix.identity(3)
+    tij = Matrix.identity(a.row_size)
     if a[i, i] == a[j, j]
       cosa = Math::cos(Math::PI / 4)
       sina = cosa
@@ -137,7 +137,7 @@ def print_help
   eps=число
     Задает погрешность, по умолчанию 1e-8
   delimiter=символ
-    Задает разделитель для csv, по умолчанию прибел"
+    Задает разделитель для csv, по умолчанию пробел"
   puts help
 end
 
