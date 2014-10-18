@@ -13,7 +13,44 @@ def proj(v1, v2)
   v1.inner_product(v2) / v2.inner_product(v2)
 end
 
-def qr(v)
+def sign(a)
+  if a >= 0
+    return 1
+  else
+    return -1
+  end
+end
+
+def qr_householder(a)
+  n = a.row_size
+  q = Matrix.identity(n)
+  (0...n-1).each do |i|
+    sum = 0
+    a.column(i).each_with_index {|el, k| sum += el*el if k >= i}
+    beta = sign(-a[i, i])*Math::sqrt(sum)
+    w = Matrix.build n, 1 do |j, k|
+      if j < i
+        0
+      elsif j == i
+        a[i, i] + beta
+      else
+        a[j, i]
+      end
+    end
+    #mu = 1/(Math::sqrt(2*beta*beta - 2*beta*a[i, i]))
+    sum = 0
+    w.column(0).each {|el| sum += el*el}
+    mu = 1 / Math::sqrt(sum)
+    w = w*mu
+    h = Matrix.identity(n) - 2*w*w.transpose
+    q = h*q
+    a = h*a
+  end
+  q = q.transpose
+  return q, a
+end
+
+def qr_gram_schmidt(v)
   u = [v.row(0)]
   e = [u[0] / u[0].norm]
   (1..v.row_size-1).each do |i|
@@ -37,12 +74,12 @@ def qr_method(a, eps)
   regular = true
 
   unless a.regular?
-    puts "Матрица вырожденная, ответ может быть неправильным" unless $silent
+    #puts "Матрица вырожденная, ответ может быть неправильным" unless $silent
     regular = false
   end
   while error >= eps do
     #STDERR.puts " #{a.to_a}" if $debug
-    q, r = qr(a)
+    q, r = qr_gram_schmidt(a)
     a = r*q
     error = 0
     a.each_with_index :strict_lower do |el, i, j|
