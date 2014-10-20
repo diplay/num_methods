@@ -2,6 +2,7 @@
 #coding: utf-8
 
 require 'matrix'
+require 'pry'
 
 class Matrix
   def []=(i, j, x)
@@ -79,12 +80,14 @@ def qr_method(a, eps)
   end
   while error >= eps do
     #STDERR.puts " #{a.to_a}" if $debug
-    q, r = qr_gram_schmidt(a)
+    q, r = qr_householder(a)
     a = r*q
+    puts "Новая матрица a" if $debug
+    puts a if $debug
     error = 0
     a.each_with_index :strict_lower do |el, i, j|
       error = el.abs if error < el.abs
-      a[i, j] = 0 if el < eps
+      #a[i, j] = 0 if el.abs  < eps
     end
   end
 
@@ -186,7 +189,7 @@ $delimiter = ' '
 $method = 'jacobi'
 $input = 'default'
 $output = 'csv'
-$eps = 1e-8
+$eps = 1e-5
 
 ARGV.each do |arg|
   case arg
