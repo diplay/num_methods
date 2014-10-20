@@ -2,7 +2,6 @@
 #coding: utf-8
 
 require 'matrix'
-require 'pry'
 
 class Matrix
   def []=(i, j, x)
@@ -174,7 +173,7 @@ def print_help
   silent
     Отключает лишний вывод, остается только ответ задачи
   eps=число
-    Задает погрешность, по умолчанию 1e-8
+    Задает погрешность, по умолчанию 1e-5
   delimiter=символ
     Задает разделитель для csv, по умолчанию пробел"
   puts help
