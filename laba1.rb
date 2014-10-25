@@ -35,12 +35,11 @@ def qr_householder(a)
       if j < i
         0
       elsif j == i
-        a[i, i] + beta
+        a[i, i] - beta
       else
         a[j, i]
       end
     end
-    #mu = 1/(Math::sqrt(2*beta*beta - 2*beta*a[i, i]))
     sum = 0
     w.column(0).each {|el| sum += el*el}
     mu = 1 / Math::sqrt(sum)
@@ -74,13 +73,10 @@ end
 
 def qr_method(a, eps)
   error = 2*eps
-  regular = true
+  iter_cnt = 0
 
-  unless a.regular?
-    #puts "Матрица вырожденная, ответ может быть неправильным" unless $silent
-    regular = false
-  end
   while error >= eps do
+    iter_cnt += 1
     #STDERR.puts " #{a.to_a}" if $debug
     q, r = qr_householder(a)
     a = r*q
@@ -89,19 +85,21 @@ def qr_method(a, eps)
     error = 0
     a.each_with_index :strict_lower do |el, i, j|
       error = el.abs if error < el.abs
-      #a[i, j] = 0 if el.abs  < eps
+      a[i, j] = 0 if el.abs  < eps
     end
   end
 
   ans = []
   a.each(:diagonal) { |el| ans.push(el)}
-  return ans, regular
+  return ans, iter_cnt
 end
 
 def jacobi_method(a, eps)
   t = Matrix.identity(a.row_size)
+  iter_cnt = 0
 
   until a.diagonal? do
+    iter_cnt += 1
     i = 0
     j = 1
     sigma = 0
@@ -134,7 +132,7 @@ def jacobi_method(a, eps)
     t = t * tij
   end
 
-  return a.row_size.times.collect { |i| a[i, i] }, t.column_vectors
+  return a.row_size.times.collect { |i| a[i, i] }, t.column_vectors, iter_cnt
 end
 
 def init_sample
@@ -223,7 +221,7 @@ else
 end
 
 if $method == 'jacobi'
-  ans, t_ans = jacobi_method(a, $eps)
+  ans, t_ans, iter_cnt = jacobi_method(a, $eps)
   case $output
   when 'csv'
     puts "Собственные значения:" unless $silent
@@ -233,16 +231,22 @@ if $method == 'jacobi'
   when 'json'
     $ans_json = "{matrix: [#{a.row_vectors.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }], eigenvalues : [#{ans.join(',')}], eigenvectors : [#{t_ans.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }] }"
     print $ans_json
+  when 'only_iterations'
+    print iter_cnt
   end
 elsif $method == 'qr'
-  ans, regular = qr_method(a, $eps)
+  ans, iter_cnt = qr_method(a, $eps)
   case $output
   when 'csv'
     puts "Собственные значения:" unless $silent
     puts ans
+    puts "Количество итераций:" unless $silent
+    puts iter_cnt
   when 'json'
-    $ans_json = "{matrix: [#{a.row_vectors.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }], eigenvalues : [#{ans.join(',')}], matrix_regular : #{regular} }"
+    $ans_json = "{matrix: [#{a.row_vectors.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }], eigenvalues : [#{ans.join(',')}] }"
     print $ans_json
+  when 'only_iterations'
+    print iter_cnt
   end
 elsif $method == 'test'
   v, d, t_ans = a.eigensystem
