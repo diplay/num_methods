@@ -3,6 +3,9 @@
 
 require 'matrix'
 
+#require 'pry'
+#for debug
+
 class Matrix
   def []=(i, j, x)
     @rows[i][j] = x
