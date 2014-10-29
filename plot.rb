@@ -17,6 +17,7 @@ def plot_file(filename, method)
   Gnuplot.open do |gp|
     Gnuplot::Plot.new(gp) do |plot|
       plot.terminal 'pdf'
+      plot.grid 'xtics ytics mytics mytics'
       plot.output "#{method}.pdf"
       plot.title "Метод #{method}"
       plot.encoding 'utf8'
