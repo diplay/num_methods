@@ -167,7 +167,7 @@ def print_help
   input=sample|csv
     Задает способ ввода данных, sample - прогоняется образец, не требует ввода
                                 csv - вводится матрица построчно, элементы разделяются разделителем
-  output=csv|json
+  output=csv|json|only-iterations
     Задает формат выходных данных
   method=jacobi|qr|test
     Задает используемый метод решения задачи, test использует алгоритм из стандартной библиотеки
@@ -231,7 +231,7 @@ if $method == 'jacobi'
   when 'json'
     $ans_json = "{matrix: [#{a.row_vectors.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }], eigenvalues : [#{ans.join(',')}], eigenvectors : [#{t_ans.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }] }"
     print $ans_json
-  when 'only_iterations'
+  when 'only-iterations'
     print iter_cnt
   end
 elsif $method == 'qr'
@@ -245,7 +245,7 @@ elsif $method == 'qr'
   when 'json'
     $ans_json = "{matrix: [#{a.row_vectors.collect {|vec| '[' + vec.to_a.join(',') + ']' }.join(',') }], eigenvalues : [#{ans.join(',')}] }"
     print $ans_json
-  when 'only_iterations'
+  when 'only-iterations'
     print iter_cnt
   end
 elsif $method == 'test'
