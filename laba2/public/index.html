@@ -2,47 +2,65 @@
 <head>
 	<title>Laba 2</title>
 	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+	<script src="/js/jquery-2.1.1.min.js" ></script>
 	<script src="/js/bootstrap.min.js" ></script>
+	<script>
+		function solve()
+		{
+			$.ajax("/solve?f=" + encodeURIComponent($("#f").val()) + "&from=" + $("#from").val() +
+				"&to=" + $("#to").val() + "&n=" + $("#n").val() +
+				"&method=" + $("#method").val()).done(function(data){
+					$('#result').html(data.ans);
+					})
+		}
+	</script>
 </head>
 <body>
 <div class="container" >
 	<div class="row" >
 		<div class="col-md-6" >
 			<h1>Laba 2</h1>
-			<form action="/solve" mathod="get">
+			<form action="/solve" method="get">
 				<div class="form-group" >
 					<div class="input-group" >
 						<label class="input-group-addon" >f(x) = </label>
-						<input name="f" class="form-control" type="textbox" placeholder="Enter function" />
+						<input name="f" id="f" class="form-control" type="textbox" placeholder="Enter function" />
 					</div>
 				</div>
 				<div class="form-group" >
 					<div class="input-group" >
 						<label class="input-group-addon" >x &gt;= </label>
-						<input name="from" class="form-control" type="textbox" value="0" />
+						<input name="from" id="from" class="form-control" type="textbox" value="0" />
 					</div>
 				</div>
 				<div class="form-group" >
 					<div class="input-group" >
 						<label class="input-group-addon" >x &lt;= </label>
-						<input name="to" class="form-control" type="textbox" value="10" />
+						<input name="to" id="to" class="form-control" type="textbox" value="10" />
 					</div>
 				</div>
 				<div class="form-group" >
 					<div class="input-group" >
 						<label class="input-group-addon" >n = </label>
-						<input name="n" class="form-control" type="textbox" value="10" />
+						<input name="n" id="n" class="form-control" type="textbox" value="10" />
 					</div>
 				</div>
 				<div class="form-group" >
 					<label>Метод</label>
-					<select name="method" class="form-control" >
+					<select name="method" id="method" class="form-control" >
 						<option value="1" >Трапеций</option>
 						<option value="2" >Симпсона</option>
 					</select>
 				</div>
-				<input type="submit" class="btn btn-success" value="Integrate" />
+				<!--<input type="submit" class="btn btn-success" value="Integrate" /> !-->
+				<input type="button" class="btn btn-success" onclick="solve();" value="Integrate" />
 			</form>
+		</div>
+	</div>
+	<div class="row" >
+		<div class="col-md-6" >
+			<div id="result" >
+			</div>
 		</div>
 	</div>
 </div>

@@ -7,7 +7,9 @@ app.engine('html', require('ejs').renderFile)
 app.use(express.static(__dirname + '/public'))
 
 solve = (f, a, b, n, method) ->
-  `f = new Function("x", "return " + f)`
+  if f == ""
+    return "f(x) is empty"
+  f = new Function("x", "return " + f)
   if method == "1"
     console.log("trap")
     return methods.trap(f, a, b, n)
@@ -15,10 +17,11 @@ solve = (f, a, b, n, method) ->
     console.log("simpson")
     return methods.simpson(f, a, b, n)
 
-app.get('/', (req, res) ->
-
-    res.render('index.ntml')
-)
+plot = (f, a, b, n_min, n_max) ->
+  f = new Function("x", "return " + f)
+  ans_trap = [n_min..n_max].map (n) -> methods.trap(f, a, b, n)
+  ans_simpson = [n_min..n_max].map (n) -> methods.simpson(f, a, b, n)
+  return {"ans_trap": ans_trap, "ans_simpson": ans_simpson}
 
 app.get('/solve', (req, res) ->
   ans = solve(req.param('f'),
@@ -30,4 +33,14 @@ app.get('/solve', (req, res) ->
   res.send({"ans": ans})
 )
 
-app.listen(3000, '127.0.0.1')
+app.get('/plot', (req, res) ->
+  ans = plot(req.param('f'),
+    parseFloat(req.param('from')),
+    parseFloat(req.param('to')),
+    parseInt(req.param('n_min', 1)),
+    parseInt(req.param('n_max', 1000))
+  )
+  res.send({"ans" : ans})
+)
+
+app.listen(3000)
