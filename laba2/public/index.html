@@ -1,23 +1,50 @@
 <html>
 <head>
 	<title>Laba 2</title>
+	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+	<script src="/js/bootstrap.min.js" ></script>
 </head>
 <body>
-	<h1>Laba 2</h1>
-	<form action="/solve" mathod="get">
-		<div>
-			<span>f(x) = </span>
-			<input name="f" type="textbox" placeholder="Enter function" />
+<div class="container" >
+	<div class="row" >
+		<div class="col-md-6" >
+			<h1>Laba 2</h1>
+			<form action="/solve" mathod="get">
+				<div class="form-group" >
+					<div class="input-group" >
+						<label class="input-group-addon" >f(x) = </label>
+						<input name="f" class="form-control" type="textbox" placeholder="Enter function" />
+					</div>
+				</div>
+				<div class="form-group" >
+					<div class="input-group" >
+						<label class="input-group-addon" >x &gt;= </label>
+						<input name="from" class="form-control" type="textbox" value="0" />
+					</div>
+				</div>
+				<div class="form-group" >
+					<div class="input-group" >
+						<label class="input-group-addon" >x &lt;= </label>
+						<input name="to" class="form-control" type="textbox" value="10" />
+					</div>
+				</div>
+				<div class="form-group" >
+					<div class="input-group" >
+						<label class="input-group-addon" >n = </label>
+						<input name="n" class="form-control" type="textbox" value="10" />
+					</div>
+				</div>
+				<div class="form-group" >
+					<label>Метод</label>
+					<select name="method" class="form-control" >
+						<option value="1" >Трапеций</option>
+						<option value="2" >Симпсона</option>
+					</select>
+				</div>
+				<input type="submit" class="btn btn-success" value="Integrate" />
+			</form>
 		</div>
-		<div>
-			<span>x &gt;= </span>
-			<input name="from" type="textbox" value="0" />
-		</div>
-		<div>
-			<span>x &lt;= </span>
-			<input name="to" type="textbox" value="10" />
-		</div>
-		<input type="submit" value="Integrate" />
-	</form>
+	</div>
+</div>
 </body>
 </html>
