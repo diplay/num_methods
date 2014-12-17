@@ -8,6 +8,7 @@ methods =
     return ans
 
   simpson: (f, a, b, n) ->
+    n *= 2
     h = (b - a) / n
     ans = f(a) + f(b)
     for i in [1...n]

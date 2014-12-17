@@ -2,8 +2,10 @@
 <head>
 	<title>Laba 2</title>
 	<link rel="stylesheet" href="/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="/css/jquery.jqplot.min.css" />
 	<script src="/js/jquery-2.1.1.min.js" ></script>
 	<script src="/js/bootstrap.min.js" ></script>
+	<script src="/js/jquery.jqplot.min.js" ></script>
 	<script>
 		function solve()
 		{
@@ -19,7 +21,9 @@
 			$.ajax("/plot?f=" + encodeURIComponent($("#f2").val()) + "&from=" + $("#from2").val() +
 				"&to=" + $("#to2").val() + "&n_min=" + $("#n_min").val() +
 				"&n_max=" + $("#n_max").val()).done(function(data){
-					$('#plot_result').html("Ответ: " + JSON.stringify(data.ans));
+					//$('#plot_result').html("Ответ: " + JSON.stringify(data.ans));
+				var plot1 = $('#plot_trap').html('').jqplot('plot1', [data.ans.ans_trap], {title: "Трапеции",axes: {xaxis:{label:'n'}, yaxis:{label:'Integral'}}})
+					var plot2 = $('#plot_simpson').html('').jqplot('plot2', [data.ans.ans_simpson], {title: "Симпсон",axes: {xaxis:{label:'n'}, yaxis:{label:'Integral'}}})
 					})
 		}
 	</script>
@@ -115,10 +119,16 @@
 							<!--<input type="submit" class="btn btn-success" value="Integrate" /> !-->
 							<input type="button" class="btn btn-success" onclick="plot();" value="Integrate" />
 						</form>
-						<div id="plot_result">
-						</div>
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12" >
+			<div id="plot_trap" >
+			</div>
+			<div id="plot_simpson" >
 			</div>
 		</div>
 	</div>
