@@ -7,11 +7,8 @@ app.engine('html', require('ejs').renderFile)
 app.use(express.static(__dirname + '/public'))
 
 prepare_f = (f) ->
-  f = f.replace /Math./gi, ""
-  f = f.replace /(exp|log|pow|sin|cos|tan|sqrt|abs|acos|asin|atan)/g, (match) ->
-    match = "Math." + match
-  console.log f
-  return f
+  f.replace( /Math./gi, "")
+    .replace /(exp|log|pow|sin|cos|tan|sqrt|abs|acos|asin|atan)/g, (match) ->
 
 solve = (f, a, b, n, method) ->
   if f == ""
@@ -20,12 +17,13 @@ solve = (f, a, b, n, method) ->
   f = new Function("x", "return " + f)
   if method == "1"
     console.log("trap")
-    return methods.trap(f, a, b, n)
+    methods.trap(f, a, b, n)
   else
     console.log("simpson")
-    return methods.simpson(f, a, b, n)
+    methods.simpson(f, a, b, n)
 
 plot = (f, a, b, n_min, n_max) ->
+  f = prepare_f f
   f = new Function("x", "return " + f)
   ans_trap = [n_min..n_max].map (n) -> [n, methods.trap(f, a, b, n)]
   ans_simpson = [n_min..n_max].map (n) -> [n, methods.simpson(f, a, b, n)]

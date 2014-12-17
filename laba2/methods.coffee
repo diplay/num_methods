@@ -2,8 +2,7 @@ methods =
   trap: (f, a, b, n) ->
     h = (b - a) / n
     ans = (f(a) + f(b)) / 2.0
-    for i in [1...n]
-      ans += f(a + i*h)
+    ans += [1...n].reduce (x, i) -> x + f(a + i*h)
     ans *= h
     return ans
 
@@ -11,9 +10,7 @@ methods =
     n *= 2
     h = (b - a) / n
     ans = f(a) + f(b)
-    for i in [1...n]
-      ans += 4*f(a + i*h) if i % 2 == 1
-      ans += 2*f(a + i*h) if i % 2 == 0
+    ans += [1...n].reduce (x, i) -> x + (if i % 2 == 1 then 4 else 2)*f(a + i*h)
     ans *= h / 3
     return ans
 
