@@ -9,6 +9,7 @@ app.use(express.static(__dirname + '/public'))
 prepare_f = (f) ->
   f.replace( /Math./gi, "")
     .replace /(exp|log|pow|sin|cos|tan|sqrt|abs|acos|asin|atan)/g, (match) ->
+      "Math." + match
 
 solve = (f, a, b, n, method) ->
   if f == ""
@@ -24,6 +25,7 @@ solve = (f, a, b, n, method) ->
 
 plot = (f, a, b, n_min, n_max) ->
   f = prepare_f f
+  console.log f
   f = new Function("x", "return " + f)
   ans_trap = [n_min..n_max].map (n) -> [n, methods.trap(f, a, b, n)]
   ans_simpson = [n_min..n_max].map (n) -> [n, methods.simpson(f, a, b, n)]
