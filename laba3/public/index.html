@@ -1,137 +1,158 @@
 <html>
 <head>
-	<title>Laba 2</title>
-	<link rel="stylesheet" href="/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="/css/jquery.jqplot.min.css" />
-	<script src="/js/jquery-2.1.1.min.js" ></script>
-	<script src="/js/bootstrap.min.js" ></script>
-	<script src="/js/jquery.jqplot.min.js" ></script>
-	<script>
-		function solve()
-		{
-			$.ajax("/solve?f=" + encodeURIComponent($("#f").val()) + "&from=" + $("#from").val() +
-				"&to=" + $("#to").val() + "&n=" + $("#n").val() +
-				"&method=" + $("#method").val()).done(function(data){
-					$('#result').html("Ответ: " + data.ans);
-					})
-		}
+<title>Laba 2</title>
+<link rel="stylesheet" href="/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/css/jquery.jqplot.min.css" />
+<script src="/js/jquery-2.1.1.min.js" ></script>
+<script src="/js/bootstrap.min.js" ></script>
+<script src="/js/jquery.jqplot.min.js" ></script>
+<script>
+function solve()
+{
+    $.ajax("/solve?f=" + encodeURIComponent($("#f").val()) + "&from=" +
+      $("#from").val() + "&to=" + $("#to").val() + "&n=" +
+      $("#n").val() + "&y0=" + $("#y0").val() + "&dery0=" +
+      $("#dery0").val() + "&method=" + $("#method").val())
+        .done(function(data){
+            $('#result').html('').jqplot('ans', [data.ans],
+              {series:[{showMarker:false}], title: "y(x)", axes: {xaxis: {label: "x"}, yaxis: {label: "y"}}});
+        })
+}
 
-		function plot()
-		{
-			$.ajax("/plot?f=" + encodeURIComponent($("#f2").val()) + "&from=" + $("#from2").val() +
-				"&to=" + $("#to2").val() + "&n_min=" + $("#n_min").val() +
-				"&n_max=" + $("#n_max").val()).done(function(data){
-					//$('#plot_result').html("Ответ: " + JSON.stringify(data.ans));
-				var plot1 = $('#plot_trap').html('').jqplot('plot1', [data.ans.ans_trap], {title: "Трапеции",axes: {xaxis:{label:'n'}, yaxis:{label:'Integral'}}})
-					var plot2 = $('#plot_simpson').html('').jqplot('plot2', [data.ans.ans_simpson], {title: "Симпсон",axes: {xaxis:{label:'n'}, yaxis:{label:'Integral'}}})
-					})
-		}
-	</script>
+function plot()
+{
+  $.ajax("/plot?f=" + encodeURIComponent($("#f2").val()) + "&from=" + $("#from2").val() +
+      "&to=" + $("#to2").val() + "&n_min=" + $("#n_min").val() +
+      "&n_max=" + $("#n_max").val()).done(function(data){
+      //$('#plot_result').html("Ответ: " + JSON.stringify(data.ans));
+      var plot1 = $('#plot_trap').html('').jqplot('plot1', [data.ans.ans_trap], {title: "Трапеции",axes: {xaxis:{label:'n'}, yaxis:{label:'Integral'}}})
+      var plot2 = $('#plot_simpson').html('').jqplot('plot2', [data.ans.ans_simpson], {title: "Симпсон",axes: {xaxis:{label:'n'}, yaxis:{label:'Integral'}}})
+      })
+}
+</script>
 </head>
 <body>
 <div class="container" >
-	<div class="row" >
-		<div class="col-md-6 col-md-offset-3" >
-			<h1>Laba 2</h1>
-		</div>
-	</div>
-	<div class="row" >
-		<div class="col-md-6 col-md-offset-3" >
-			<div class="jumbotron" >
-				<ul class="nav nav-tabs" >
-					<li class="active" ><a href="#solve" data-toggle="tab">Интегрирование</a></li>
-					<li><a href="#plot" data-toggle="tab">Пакетный режим</a></li>
-				</ul>
-				<div class="tab-content" >
-					<div class="tab-pane fade in active" id="solve" >
-						<h3>Интегрирование</h3>
-						<form action="/solve" method="get">
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >f(x) = </label>
-									<input name="f" id="f" class="form-control" type="textbox" placeholder="Enter function" />
-								</div>
-							</div>
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >x &gt;= </label>
-									<input name="from" id="from" class="form-control" type="textbox" value="0" />
-								</div>
-							</div>
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >x &lt;= </label>
-									<input name="to" id="to" class="form-control" type="textbox" value="10" />
-								</div>
-							</div>
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >n = </label>
-									<input name="n" id="n" class="form-control" type="textbox" value="10" />
-								</div>
-							</div>
-							<div class="form-group" >
-								<label>Метод</label>
-								<select name="method" id="method" class="form-control" >
-									<option value="1" >Трапеций</option>
-									<option value="2" >Симпсона</option>
-								</select>
-							</div>
-							<!--<input type="submit" class="btn btn-success" value="Integrate" /> !-->
-							<input type="button" class="btn btn-success" onclick="solve();" value="Integrate" />
-						</form>
-						<div id="result" >
-						</div>
-					</div>
-					<div class="tab-pane fade" id="plot" >
-						<h3>Пакетный режим</h3>
-						<form action="/plot" method="get">
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >f(x) = </label>
-									<input name="f" id="f2" class="form-control" type="textbox" placeholder="Enter function" />
-								</div>
-							</div>
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >x &gt;= </label>
-									<input name="from" id="from2" class="form-control" type="textbox" value="0" />
-								</div>
-							</div>
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >x &lt;= </label>
-									<input name="to" id="to2" class="form-control" type="textbox" value="10" />
-								</div>
-							</div>
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >n min = </label>
-									<input name="n_min" id="n_min" class="form-control" type="textbox" value="10" />
-								</div>
-							</div>
-							<div class="form-group" >
-								<div class="input-group" >
-									<label class="input-group-addon" >n max = </label>
-									<input name="n_max" id="n_max" class="form-control" type="textbox" value="10" />
-								</div>
-							</div>
-							<!--<input type="submit" class="btn btn-success" value="Integrate" /> !-->
-							<input type="button" class="btn btn-success" onclick="plot();" value="Integrate" />
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-12" >
-			<div id="plot_trap" >
-			</div>
-			<div id="plot_simpson" >
-			</div>
-		</div>
-	</div>
+  <div class="row" >
+    <div class="col-md-6 col-md-offset-3" >
+      <h1>Метод Адамса-Штернера</h1>
+    </div>
+  </div>
+  <div class="row" >
+    <div class="col-md-6 col-md-offset-3" >
+      <div class="jumbotron" >
+        <ul class="nav nav-tabs" >
+          <li class="active" ><a href="#solve" data-toggle="tab">ОДУ</a></li>
+          <li><a href="#plot" data-toggle="tab">Пакетный режим</a></li>
+        </ul>
+        <div class="tab-content" >
+          <div class="tab-pane fade in active" id="solve" >
+            <h3>Задача Коши</h3>
+            <form action="/solve" method="get">
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >y'' = </label>
+                  <input class="form-control" type="textbox" value=" f(x, y) " disabled />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >f(x, y) = </label>
+                  <input name="f" id="f" class="form-control" type="textbox" placeholder="Enter function" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >a = </label>
+                  <input name="from" id="from" class="form-control" type="textbox" value="0" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >b = </label>
+                  <input name="to" id="to" class="form-control" type="textbox" value="10" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >y(a) = </label>
+                  <input name="y0" id="y0" class="form-control" type="textbox" value="0" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >y'(a) = </label>
+                  <input name="dery0" id="dery0" class="form-control" type="textbox" value="0" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >n = </label>
+                  <input name="n" id="n" class="form-control" type="textbox" value="10" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <label>Метод</label>
+                <select name="method" id="method" class="form-control" >
+                  <option value="1" >Явный</option>
+                  <option value="2" >Неявный</option>
+                </select>
+              </div>
+              <!--<input type="submit" class="btn btn-success" value="Integrate" /> !-->
+              <input type="button" class="btn btn-success" onclick="solve();" value="Integrate" />
+            </form>
+            <div id="result" >
+            </div>
+          </div>
+          <div class="tab-pane fade" id="plot" >
+            <h3>Пакетный режим</h3>
+            <form action="/plot" method="get">
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >f(x) = </label>
+                  <input name="f" id="f2" class="form-control" type="textbox" placeholder="Enter function" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >x &gt;= </label>
+                  <input name="from" id="from2" class="form-control" type="textbox" value="0" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >x &lt;= </label>
+                  <input name="to" id="to2" class="form-control" type="textbox" value="10" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >n min = </label>
+                  <input name="n_min" id="n_min" class="form-control" type="textbox" value="10" />
+                </div>
+              </div>
+              <div class="form-group" >
+                <div class="input-group" >
+                  <label class="input-group-addon" >n max = </label>
+                  <input name="n_max" id="n_max" class="form-control" type="textbox" value="10" />
+                </div>
+              </div>
+              <!--<input type="submit" class="btn btn-success" value="Integrate" /> !-->
+              <input type="button" class="btn btn-success" onclick="plot();" value="Integrate" />
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12" >
+      <div id="plot_trap" >
+      </div>
+      <div id="plot_simpson" >
+      </div>
+    </div>
+  </div>
 </div>
 </body>
 </html>

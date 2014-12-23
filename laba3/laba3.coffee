@@ -11,17 +11,17 @@ prepare_f = (f) ->
     .replace /(exp|log|pow|sin|cos|tan|sqrt|abs|acos|asin|atan)/g, (match) ->
       "Math." + match
 
-solve = (f, a, b, n, method) ->
+solve = (f, a, b, y0, dery0, n, method) ->
   if f == ""
     return "f(x) is empty"
   f = prepare_f f
-  f = new Function("x", "return " + f)
+  f = new Function("x", "y", "return " + f)
   if method == "1"
-    console.log("trap")
-    methods.trap(f, a, b, n)
+    console.log("explicit")
+    methods.explicit(f, a, b, y0, dery0, n)
   else
-    console.log("simpson")
-    methods.simpson(f, a, b, n)
+    console.log("implicit")
+    methods.implicit(f, a, b, n)
 
 plot = (f, a, b, n_min, n_max) ->
   f = prepare_f f
@@ -35,6 +35,8 @@ app.get('/solve', (req, res) ->
   ans = solve(req.param('f'),
     parseFloat(req.param('from')),
     parseFloat(req.param('to')),
+    parseFloat(req.param('y0')),
+    parseFloat(req.param('dery0')),
     parseFloat(req.param('n')),
     req.param('method')
   )
