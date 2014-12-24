@@ -21,7 +21,7 @@ solve = (f, a, b, y0, dery0, n, method) ->
     methods.explicit(f, a, b, y0, dery0, n)
   else
     console.log("implicit")
-    methods.implicit(f, a, b, n)
+    methods.implicit(f, a, b, y0, dery0, n)
 
 #plot = (f, a, b, n_min, n_max) ->
 #  f = prepare_f f
