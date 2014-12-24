@@ -36,15 +36,12 @@ methods =
     h = (b - a) / n
     y = startValues(f, a, b, ya, derya, n)
 
-    console.log y
-
     p = (i) ->
       f(a + h*i, y[i + 2][1]) +
         finiteDifference(f, a + h*(i-2), a + h*(i-1), y[i-2 + 2][1], y[i-1 + 2][1], 2) / 12
 
     [0...n].forEach (i) ->
       y.push([a + h*(i+1), 2*y[i + 2][1] - y[i-1 + 2][1] + (h*h)*p(i)])
-    console.log y
     return y[2..(n+2)]
 
   implicit: (f, a, b, ya, derya, n) ->

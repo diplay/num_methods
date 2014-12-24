@@ -23,13 +23,13 @@ solve = (f, a, b, y0, dery0, n, method) ->
     console.log("implicit")
     methods.implicit(f, a, b, n)
 
-plot = (f, a, b, n_min, n_max) ->
-  f = prepare_f f
-  console.log f
-  f = new Function("x", "return " + f)
-  ans_trap = [n_min..n_max].map (n) -> [n, methods.trap(f, a, b, n)]
-  ans_simpson = [n_min..n_max].map (n) -> [n, methods.simpson(f, a, b, n)]
-  return {"ans_trap": ans_trap, "ans_simpson": ans_simpson}
+#plot = (f, a, b, n_min, n_max) ->
+#  f = prepare_f f
+#  console.log f
+#  f = new Function("x", "return " + f)
+#  ans_explicit = [n_min..n_max].map (n) -> [n, methods.explicit(f, a, b, n)]
+#  ans_implicit = [n_min..n_max].map (n) -> [n, methods.implicit(f, a, b, n)]
+#  return {"ans_explicit": ans_explicit, "ans_implicit": ans_implicit}
 
 app.get('/solve', (req, res) ->
   ans = solve(req.param('f'),
@@ -43,14 +43,14 @@ app.get('/solve', (req, res) ->
   res.send({"ans": ans})
 )
 
-app.get('/plot', (req, res) ->
-  ans = plot(req.param('f'),
-    parseFloat(req.param('from')),
-    parseFloat(req.param('to')),
-    parseInt(req.param('n_min', 1)),
-    parseInt(req.param('n_max', 1000))
-  )
-  res.send({"ans" : ans})
-)
+#app.get('/plot', (req, res) ->
+#  ans = plot(req.param('f'),
+#    parseFloat(req.param('from')),
+#    parseFloat(req.param('to')),
+#    parseInt(req.param('n_min', 1)),
+#    parseInt(req.param('n_max', 1000))
+#  )
+#  res.send({"ans" : ans})
+#)
 
 app.listen(3000)
